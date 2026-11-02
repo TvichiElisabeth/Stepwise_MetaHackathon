@@ -1,0 +1,7 @@
+.venv/
+.env
+__pycache__/
+data/videos/
+data/frames/
+cache/
+usage_log.csv
