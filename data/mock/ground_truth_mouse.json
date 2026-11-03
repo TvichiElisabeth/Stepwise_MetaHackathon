@@ -1,0 +1,8 @@
+[
+  {"name": "Turn the mouse off",        "start": 2.0,  "end": 10.0},
+  {"name": "Open the battery cover",    "start": 13.0,  "end": 19.5},
+  {"name": "Remove the old battery",    "start": 20, "end": 29.5},
+  {"name": "Check the polarity",        "start": 30.5, "end": 35.0},
+  {"name": "Insert the new battery",    "start": 37.0, "end": 43.5},
+  {"name": "Close the cover, turn on",  "start": 46, "end": 53}
+]

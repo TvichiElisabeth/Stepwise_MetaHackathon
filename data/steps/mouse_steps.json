@@ -1,0 +1,44 @@
+[
+  {
+    "start": 2.0,
+    "end": 13.05,
+    "text": "Step one, I turn the mouse off.",
+    "source": "speech + motion",
+    "number": 1
+  },
+  {
+    "start": 14.0,
+    "end": 19.58,
+    "text": "Step two, I open the battery cover.",
+    "source": "speech + motion",
+    "number": 2
+  },
+  {
+    "start": 20.0,
+    "end": 29.61,
+    "text": "Step three, I remove the old battery.",
+    "source": "speech + motion",
+    "number": 3
+  },
+  {
+    "start": 30.0,
+    "end": 35.64,
+    "text": "Step four, I check the polarity.",
+    "source": "speech + motion (split)",
+    "number": 4
+  },
+  {
+    "start": 35.64,
+    "end": 43.67,
+    "text": "Step five, I insert the new battery.",
+    "source": "speech + motion (split)",
+    "number": 5
+  },
+  {
+    "start": 45.68,
+    "end": 54.71,
+    "text": "Step six, I close the cover and turn it on.",
+    "source": "speech + motion",
+    "number": 6
+  }
+]

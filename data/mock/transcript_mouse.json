@@ -1,0 +1,8 @@
+[
+  {"start": 2.0,  "text": "Step one, I turn the mouse off."},
+  {"start": 14.0, "text": "Step two, I open the battery cover."},
+  {"start": 20.0, "text": "Step three, I remove the old battery."},
+  {"start": 30.0, "text": "Step four, I check the polarity."},
+  {"start": 41.0, "text": "Step five, I insert the new battery."},
+  {"start": 46.0, "text": "Step six, I close the cover and turn it on."}
+]
