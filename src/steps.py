@@ -44,11 +44,15 @@ def calm_points(times, smooth, start, end, n):
     minima = sorted(minima, key=lambda i: smooth[i])[:n]
     return sorted(times[i] for i in minima)
 
-def build_steps(name):
+def build_steps(name, sentences=None):
     frames = load_frames(name)
     times = [t for t, _ in frames]
     bursts, _, smooth = split_steps(times, motion_scores(frames))
-    sentences = json.load(open(f"data/mock/transcript_{name}.json"))
+    if sentences is None:
+        path = f"data/transcripts/{name}.json"
+        if not os.path.exists(path):
+            path = f"data/mock/transcript_{name}.json"
+        sentences = json.load(open(path, encoding="utf-8"))
     groups, orphans = assign(sentences, bursts)
 
     steps = []
