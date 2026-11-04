@@ -11,8 +11,9 @@
 
 Usage:  python src\\sop.py mouse
 """
-import json, os, sys
+import glob, json, os, sys
 import cv2
+import paths
 import meta_client as mc
 from frames import extract_frames
 from steps import build_steps
@@ -34,35 +35,42 @@ def annotate(image_path, objects, out_path):
             c = COLORS[i % len(COLORS)]
             cv2.rectangle(img, p1, p2, c, 3)
             (tw, th), _ = cv2.getTextSize(obj, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-            cv2.rectangle(img, (p1[0], max(0, p1[1] - th - 10)), (p1[0] + tw + 10, p1[1]), c, -1)
-            cv2.putText(img, obj, (p1[0] + 5, p1[1] - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+            lw, lh = tw + 10, th + 10
+            lx = max(0, min(p1[0], img.shape[1] - lw))          # keep it inside the right edge
+            ly = p1[1] - lh if p1[1] >= lh else p1[1]           # above the box, or inside it if no room
+            cv2.rectangle(img, (lx, ly), (lx + lw, ly + lh), c, -1)
+            cv2.putText(img, obj, (lx + 5, ly + lh - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
             found.append({"object": obj, "score": round(b["score"], 2)})
     cv2.imwrite(out_path, img)
     return found
 
 def create_sop(name, log=print):
-    video = f"data/videos/{name}.mp4"
-    if not os.path.isdir(f"data/frames/{name}"):
+    video = paths.video(name)
+    if not os.path.isdir(paths.frames_dir(name)):
         log("1/7 Extracting frames...")
-        extract_frames(video, f"data/frames/{name}")
+        extract_frames(video, paths.frames_dir(name))
 
     log(f"2/7 Transcribing narration ({mc.BACKEND})...")
     sentences = mc.transcribe(video, name)
-    os.makedirs("data/transcripts", exist_ok=True)
-    json.dump(sentences, open(f"data/transcripts/{name}.json", "w", encoding="utf-8"), indent=2)
+    os.makedirs(paths.work(name), exist_ok=True)
+    json.dump(sentences, open(paths.transcript(name), "w", encoding="utf-8"), indent=2)
 
-    log("3/7 Merging speech and motion into steps...")
-    steps = build_steps(name, sentences)
+    log(f"3/7 Grouping narration with {mc.SPARK_MODEL}, then merging with motion...")
+    groups = mc.group_steps(mc.clean_turns(sentences))
+    steps = build_steps(name, groups)
 
     log("4/7 Picking keyframes...")
     steps = add_keyframes(name, steps)
+    json.dump(steps, open(paths.steps_json(name), "w", encoding="utf-8"), indent=2)
 
     log(f"5/7 Writing SOP with {mc.SPARK_MODEL} ({mc.BACKEND})...")
     sop = mc.write_sop(steps)
 
     log("6/7 Highlighting objects with SAM 3.1...")
-    out_dir = f"data/sop/{name}"
-    os.makedirs(out_dir, exist_ok=True)
+    images_dir = paths.output_images(name)
+    os.makedirs(images_dir, exist_ok=True)
+    for old in glob.glob(f"{images_dir}/step_*.jpg"):   # a previous run may have had more steps
+        os.remove(old)
     by_num = {s["number"]: s for s in steps}
     for st in sop["steps"]:
         src = by_num.get(st["number"])
@@ -70,14 +78,14 @@ def create_sop(name, log=print):
             continue
         st["start"], st["end"] = src["start"], src["end"]
         st["narration"] = src.get("text")
-        img_out = f"{out_dir}/step_{st['number']:02d}.jpg"
+        img_out = f"{images_dir}/step_{st['number']:02d}.jpg"
         st["found_objects"] = annotate(src["keyframe"], st.get("visible_objects", []), img_out)
         st["image"] = img_out
 
-    json.dump(sop, open(f"{out_dir}/sop.json", "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    json.dump(sop, open(paths.sop_json(name), "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     log("7/7 Exporting HTML...")
-    html = export_html(sop, f"{out_dir}/sop.html")
-    log(f"Done: {out_dir}/sop.json and {html}")
+    html = export_html(sop, paths.sop_html(name))
+    log(f"Done: {paths.sop_json(name)} and {html}")
     return sop
 
 if __name__ == "__main__":

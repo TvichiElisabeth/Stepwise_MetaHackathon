@@ -1,11 +1,12 @@
 import cv2, glob, os, sys
 import numpy as np
 import matplotlib.pyplot as plt
+import paths
 
 def load_frames(name):
-    paths = sorted(glob.glob(f"data/frames/{name}/frame_*.jpg"))
-    times = [float(os.path.basename(p)[6:-4]) for p in paths]
-    return list(zip(times, paths))
+    files = sorted(glob.glob(f"{paths.frames_dir(name)}/frame_*.jpg"))
+    times = [float(os.path.basename(p)[6:-4]) for p in files]
+    return list(zip(times, files))
 
 def motion_scores(frames):
     scores, prev = [], None
@@ -54,6 +55,6 @@ if __name__ == "__main__":
     for s, e in steps:
         plt.axvspan(s, e, alpha=0.2, color="green")
     plt.xlabel("time (s)"); plt.ylabel("motion"); plt.legend(); plt.tight_layout()
-    os.makedirs("data/plots", exist_ok=True)
-    plt.savefig(f"data/plots/{name}_motion.png")
+    os.makedirs(paths.plots_dir(name), exist_ok=True)
+    plt.savefig(f"{paths.plots_dir(name)}/motion.png")
     plt.show()

@@ -11,8 +11,9 @@ how sharp the image is, how still the hands are, and how close the frame is to t
 
 The weights are a heuristic tuned by inspecting the results, not optimized values.
 """
-import cv2, json, os, shutil, sys
+import cv2, glob, json, os, shutil, sys
 import numpy as np
+import paths
 from motion import load_frames
 
 def sharpness(img):
@@ -50,8 +51,10 @@ def add_keyframes(name, steps):
     """Adds "keyframe" and "keyframe_time" to each step; saves a preview sheet."""
     frames = load_frames(name)
 
-    out_dir = f"data/keyframes/{name}"
+    out_dir = paths.keyframes_dir(name)
     os.makedirs(out_dir, exist_ok=True)
+    for old in glob.glob(f"{out_dir}/step_*.jpg"):      # a previous run may have had more steps
+        os.remove(old)
     tiles = []
     for s in steps:
         t, p = pick_keyframe(frames, s["start"], s["end"])
@@ -69,13 +72,13 @@ def add_keyframes(name, steps):
     while len(tiles) % 3:
         tiles.append(np.zeros_like(tiles[0]))
     sheet = np.vstack([np.hstack(tiles[i:i + 3]) for i in range(0, len(tiles), 3)])
-    os.makedirs("data/plots", exist_ok=True)
-    cv2.imwrite(f"data/plots/{name}_keyframes.jpg", sheet)
+    os.makedirs(paths.plots_dir(name), exist_ok=True)
+    cv2.imwrite(f"{paths.plots_dir(name)}/keyframes.jpg", sheet)
     return steps
 
 if __name__ == "__main__":
     name = sys.argv[1] if len(sys.argv) > 1 else "mouse"
-    steps_path = f"data/steps/{name}_steps.json"
+    steps_path = paths.steps_json(name)
     steps = add_keyframes(name, json.load(open(steps_path)))
     json.dump(steps, open(steps_path, "w"), indent=2)
-    print(f"Updated {steps_path} and saved data/plots/{name}_keyframes.jpg")
+    print(f"Updated {steps_path} and saved {paths.plots_dir(name)}/keyframes.jpg")

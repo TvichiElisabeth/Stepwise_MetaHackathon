@@ -9,6 +9,7 @@ video/image is paid for only once. Re-runs and demos are free.
 """
 import base64, hashlib, json, os, re, subprocess
 from dotenv import load_dotenv
+import paths
 
 load_dotenv()
 BACKEND = os.getenv("BACKEND", "meta_api")
@@ -65,12 +66,12 @@ def _log_usage(model, resp):
 def transcribe(video_path, name=None):
     """Returns [{"start": s, "end": s, "text": str}, ...]"""
     if BACKEND == "mock":
-        return json.load(open(f"data/mock/transcript_{name}.json", encoding="utf-8"))
+        return json.load(open(paths.mock_transcript(name), encoding="utf-8"))
 
     def call():
         import requests
-        os.makedirs("data/audio", exist_ok=True)
-        wav = f"data/audio/{os.path.splitext(os.path.basename(video_path))[0]}.wav"
+        wav = paths.audio(os.path.splitext(os.path.basename(video_path))[0])
+        os.makedirs(os.path.dirname(wav), exist_ok=True)
         subprocess.run([_ffmpeg(), "-y", "-v", "error", "-i", video_path, "-vn",
                         "-ac", "1", "-ar", "16000", "-sample_fmt", "s16",
                         "-map_metadata", "-1", wav], check=True)
@@ -120,20 +121,73 @@ def segment(image_path, prompt):
 
 # ---------- 3. Muse Spark: reasoning over text + images ----------
 
-def _spark(content, max_output_tokens=4000):
-    resp = _client().responses.create(
-        model=SPARK_MODEL,
-        input=[{"type": "message", "role": "user", "content": content}],
-        max_output_tokens=max_output_tokens,
-    )
-    _log_usage(SPARK_MODEL, resp)
-    return resp.output_text
+def _spark(content, max_output_tokens=8000):
+    """The limit covers Spark's thinking too (~900 tokens even for a tiny answer).
+    If it runs out while thinking the reply is empty, so retry once with double."""
+    for limit in (max_output_tokens, max_output_tokens * 2):
+        resp = _client().responses.create(
+            model=SPARK_MODEL,
+            input=[{"type": "message", "role": "user", "content": content}],
+            max_output_tokens=limit,
+        )
+        _log_usage(SPARK_MODEL, resp)
+        if resp.output_text and resp.output_text.strip():
+            return resp.output_text
+    raise RuntimeError(f"Spark returned no text at limit {limit}: status={resp.status}, "
+                       f"incomplete={resp.incomplete_details}, usage={resp.usage}")
 
 def _json_from(text):
     m = re.search(r"\{.*\}|\[.*\]", text, re.S)
     if not m:
         raise ValueError(f"No JSON in model output:\n{text[:500]}")
     return json.loads(m.group(0))
+
+GROUP_PROMPT = """Below is the numbered transcript of a worker narrating a hands-on task.
+Group the turns into the real steps of the procedure.
+
+Rules:
+- One step = one physical action, or one check, that the worker performs.
+- Put turns that describe the same action in the same step.
+- If one turn describes two separate actions, keep it as one step.
+- Leave out turns that aren't part of the task (greetings, intros, "thanks for watching").
+- Keep the original order. Use only turn numbers from the list.
+
+Return ONLY JSON: {"steps": [{"turns": [int, ...]}]}"""
+
+def clean_turns(turns, min_s=0.5):
+    """Drops tiny fragments and fixes stutters like 'StepStep one'."""
+    out = []
+    for t in turns:
+        if "end" in t and t["end"] - t["start"] < min_s:   # mock transcripts have no end
+            continue
+        text = re.sub(r"^([A-Z][a-z]+)\1\b", r"\1", t["text"])
+        out.append({**t, "text": text})
+    return out
+
+def group_steps(sentences):
+    """Spark groups transcript turns into real steps: [{"start","end","text"}, ...]."""
+    if BACKEND == "mock" or not sentences:
+        return sentences
+
+    numbered = "\n".join(f"[{i}] {s['start']:.1f}-{s['end']:.1f}s: {s['text']}"
+                         for i, s in enumerate(sentences))
+    content = [{"type": "input_text", "text": GROUP_PROMPT + "\n\nTranscript:\n" + numbered}]
+
+    def call():
+        return _json_from(_spark(content))
+
+    result = _cached("group", _key(SPARK_MODEL, GROUP_PROMPT, numbered), call)
+
+    groups, used = [], set()
+    for g in result.get("steps", []):
+        idx = sorted({i for i in g.get("turns", [])
+                      if isinstance(i, int) and 0 <= i < len(sentences) and i not in used})
+        used.update(idx)
+        if idx:
+            turns = [sentences[i] for i in idx]
+            groups.append({"start": turns[0]["start"], "end": turns[-1]["end"],
+                           "text": " ".join(t["text"] for t in turns)})
+    return sorted(groups, key=lambda s: s["start"]) or sentences
 
 SOP_PROMPT = """You are writing a Standard Operating Procedure (SOP) for a hands-on task.
 You get, for each step: the worker's narration and one photo from the moment
@@ -185,7 +239,7 @@ def match_step(sop, image_paths):
     content += [{"type": "input_image", "image_url": _data_url(p)} for p in image_paths]
 
     def call():
-        return _json_from(_spark(content, 500))
+        return _json_from(_spark(content))
 
     return _cached("match", _key(SPARK_MODEL, CHECK_PROMPT, sop_text, *image_paths), call)
 

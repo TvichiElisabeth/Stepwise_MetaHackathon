@@ -7,6 +7,8 @@
 """
 import cv2, json, os, sys
 import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # src/
+import paths
 from motion import load_frames, motion_scores, split_steps
 
 def frame_at(frames, t):
@@ -57,10 +59,10 @@ if __name__ == "__main__":
     frames = load_frames(name)
     times = [t for t, _ in frames]
     steps, _, _ = split_steps(times, motion_scores(frames))
-    os.makedirs("data/plots", exist_ok=True)
-    contact_sheet(name, frames, steps, f"data/plots/{name}_steps.jpg")
+    os.makedirs(paths.plots_dir(name), exist_ok=True)
+    contact_sheet(name, frames, steps, f"{paths.plots_dir(name)}/steps.jpg")
 
-    gt_path = f"data/mock/ground_truth_{name}.json"
+    gt_path = paths.ground_truth(name)
     if os.path.exists(gt_path):
         compare(steps, json.load(open(gt_path)))
     else:

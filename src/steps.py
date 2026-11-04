@@ -2,7 +2,8 @@
 
 Rules:
 1. Each sentence is assigned to a motion burst:
-   - the burst it falls inside, or
+   - the burst it falls inside (unless it's in the last END_MARGIN_S seconds of
+     that burst and another burst is about to start: then it's the next one), or
    - the next burst starting within LOOKAHEAD_S seconds (people talk, then act), or
    - the nearest burst.
 2. A burst with N sentences is split into N steps at the N-1 calmest
@@ -14,9 +15,11 @@ Rules:
 """
 import json, os, sys
 import numpy as np
+import paths
 from motion import load_frames, motion_scores, split_steps
 
 LOOKAHEAD_S = 4.0
+END_MARGIN_S = 1.5   # a sentence this close to a burst's end describes the next burst
 
 def assign(sentences, bursts):
     groups = {i: [] for i in range(len(bursts))}
@@ -25,7 +28,8 @@ def assign(sentences, bursts):
         t = s["start"]
         inside = [i for i, (a, b) in enumerate(bursts) if a <= t <= b]
         ahead = [i for i, (a, _) in enumerate(bursts) if 0 <= a - t <= LOOKAHEAD_S]
-        if inside:
+        about_to_end = inside and ahead and bursts[inside[0]][1] - t <= END_MARGIN_S
+        if inside and not about_to_end:
             groups[inside[0]].append(s)
         elif ahead:
             groups[ahead[0]].append(s)
@@ -49,9 +53,9 @@ def build_steps(name, sentences=None):
     times = [t for t, _ in frames]
     bursts, _, smooth = split_steps(times, motion_scores(frames))
     if sentences is None:
-        path = f"data/transcripts/{name}.json"
+        path = paths.transcript(name)
         if not os.path.exists(path):
-            path = f"data/mock/transcript_{name}.json"
+            path = paths.mock_transcript(name)
         sentences = json.load(open(path, encoding="utf-8"))
     groups, orphans = assign(sentences, bursts)
 
@@ -82,7 +86,7 @@ if __name__ == "__main__":
     print(f"{len(steps)} steps:")
     for s in steps:
         print(f"  {s['number']}. {s['start']:5.1f}s -> {s['end']:5.1f}s  [{s['source']}]  {s['text']}")
-    os.makedirs("data/steps", exist_ok=True)
-    out = f"data/steps/{name}_steps.json"
+    os.makedirs(paths.work(name), exist_ok=True)
+    out = paths.steps_json(name)
     json.dump(steps, open(out, "w"), indent=2)
     print(f"Saved {out}")
