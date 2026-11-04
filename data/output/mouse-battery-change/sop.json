@@ -1,0 +1,133 @@
+{
+  "title": "Replace Wireless Mouse Battery",
+  "purpose": "Restore wireless mouse operation by safely replacing the depleted battery.",
+  "tools": [],
+  "parts": [
+    "wireless mouse",
+    "AA battery",
+    "battery cover"
+  ],
+  "steps": [
+    {
+      "number": 1,
+      "title": "Turn off the mouse",
+      "instruction": "Flip the mouse over and slide the power switch to OFF.",
+      "visible_objects": [
+        "wireless mouse",
+        "power switch"
+      ],
+      "check": "Switch is in OFF position and sensor light is off.",
+      "warning": null,
+      "start": 0.78,
+      "end": 13.05,
+      "narration": "Step one, I turn the mouse off.",
+      "found_objects": [
+        {
+          "object": "wireless mouse",
+          "score": 0.86
+        }
+      ],
+      "image": "data/output/mouse-battery-change/images/step_01.jpg"
+    },
+    {
+      "number": 2,
+      "title": "Open battery cover",
+      "instruction": "Hold the mouse steady and slide the rear battery cover off.",
+      "visible_objects": [
+        "battery cover",
+        "wireless mouse"
+      ],
+      "check": "Cover loosens and separates from mouse body.",
+      "warning": null,
+      "start": 12.94,
+      "end": 19.58,
+      "narration": "Step two, I open the battery cover.",
+      "found_objects": [
+        {
+          "object": "wireless mouse",
+          "score": 0.93
+        }
+      ],
+      "image": "data/output/mouse-battery-change/images/step_02.jpg"
+    },
+    {
+      "number": 3,
+      "title": "Remove old battery",
+      "instruction": "Pull the old battery out of the compartment.",
+      "visible_objects": [
+        "old battery",
+        "battery compartment"
+      ],
+      "check": "Battery is lifted clear of the compartment.",
+      "warning": "Avoid touching leaking or corroded contacts.",
+      "start": 19.82,
+      "end": 29.61,
+      "narration": "Step three, I remove the old battery.",
+      "found_objects": [
+        {
+          "object": "battery compartment",
+          "score": 0.6
+        }
+      ],
+      "image": "data/output/mouse-battery-change/images/step_03.jpg"
+    },
+    {
+      "number": 4,
+      "title": "Inspect polarity markings",
+      "instruction": "Look into the empty compartment to locate the + and - polarity marks.",
+      "visible_objects": [
+        "empty battery compartment",
+        "battery cover"
+      ],
+      "check": "Compartment is empty, polarity marks visible, cover set aside.",
+      "warning": null,
+      "start": 30.14,
+      "end": 35.64,
+      "narration": "Step four, I check the polarity.",
+      "found_objects": [],
+      "image": "data/output/mouse-battery-change/images/step_04.jpg"
+    },
+    {
+      "number": 5,
+      "title": "Insert new battery",
+      "instruction": "Place the new AA battery to match the + and - polarity marks.",
+      "visible_objects": [
+        "new battery",
+        "battery compartment"
+      ],
+      "check": "Battery sits flat and secure in the compartment.",
+      "warning": "Do not reverse polarity.",
+      "start": 35.64,
+      "end": 43.67,
+      "narration": "Step five, I insert the new battery.",
+      "found_objects": [
+        {
+          "object": "new battery",
+          "score": 0.78
+        },
+        {
+          "object": "battery compartment",
+          "score": 0.78
+        }
+      ],
+      "image": "data/output/mouse-battery-change/images/step_05.jpg"
+    },
+    {
+      "number": 6,
+      "title": "Close cover and power on",
+      "instruction": "Slide the battery cover back until it clicks, then slide the power switch to ON.",
+      "visible_objects": [
+        "battery cover",
+        "power switch",
+        "optical sensor"
+      ],
+      "check": "Cover is flush and sensor light glows.",
+      "warning": null,
+      "start": 45.68,
+      "end": 54.71,
+      "narration": "Step six, I close the cover and turn it on.",
+      "found_objects": [],
+      "image": "data/output/mouse-battery-change/images/step_06.jpg"
+    }
+  ]
+}
