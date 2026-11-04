@@ -1,0 +1,13 @@
+[theme]
+base = "light"
+primaryColor = "#8d4b00"
+backgroundColor = "#f8f9ff"
+secondaryBackgroundColor = "#eff4ff"
+textColor = "#0b1c30"
+font = "IBM Plex Sans, sans-serif"
+headingFont = "Space Grotesk, sans-serif"
+codeFont = "JetBrains Mono, monospace"
+baseRadius = "small"
+
+[client]
+toolbarMode = "minimal"
