@@ -4,41 +4,53 @@
     "end": 13.05,
     "text": "Step one, I turn the mouse off.",
     "source": "speech + motion",
-    "number": 1
+    "number": 1,
+    "keyframe": "data/keyframes/mouse/step_01.jpg",
+    "keyframe_time": 10.04
   },
   {
     "start": 14.0,
     "end": 19.58,
     "text": "Step two, I open the battery cover.",
     "source": "speech + motion",
-    "number": 2
+    "number": 2,
+    "keyframe": "data/keyframes/mouse/step_02.jpg",
+    "keyframe_time": 17.07
   },
   {
     "start": 20.0,
     "end": 29.61,
     "text": "Step three, I remove the old battery.",
     "source": "speech + motion",
-    "number": 3
+    "number": 3,
+    "keyframe": "data/keyframes/mouse/step_03.jpg",
+    "keyframe_time": 26.6
   },
   {
     "start": 30.0,
     "end": 35.64,
     "text": "Step four, I check the polarity.",
     "source": "speech + motion (split)",
-    "number": 4
+    "number": 4,
+    "keyframe": "data/keyframes/mouse/step_04.jpg",
+    "keyframe_time": 32.12
   },
   {
     "start": 35.64,
     "end": 43.67,
     "text": "Step five, I insert the new battery.",
     "source": "speech + motion (split)",
-    "number": 5
+    "number": 5,
+    "keyframe": "data/keyframes/mouse/step_05.jpg",
+    "keyframe_time": 41.16
   },
   {
     "start": 45.68,
     "end": 54.71,
     "text": "Step six, I close the cover and turn it on.",
     "source": "speech + motion",
-    "number": 6
+    "number": 6,
+    "keyframe": "data/keyframes/mouse/step_06.jpg",
+    "keyframe_time": 51.7
   }
 ]
