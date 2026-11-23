@@ -6,6 +6,8 @@ A person should review the draft before anyone relies on it.
 
 Built for the Meta Global AI Developer Hackathon with Muse Voice Transcribe, Muse Spark and SAM 3.1.
 
+<img width="728" height="800" alt="image" src="https://github.com/user-attachments/assets/5c545e27-38db-4170-b7c2-2c82a1fbfa5b" />
+
 ![Step from a generated SOP, with boxes drawn by SAM 3.1](data/output/mouse/images/step_05.jpg)
 
 *A photo from a generated SOP. Stepwise chose the frame, Muse Spark named the objects, and SAM 3.1 located them.*
