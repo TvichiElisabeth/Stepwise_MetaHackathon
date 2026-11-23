@@ -88,4 +88,4 @@ repo because of its size.
 ## Built during the hackathon
 
 All code in this repo was written during the Meta Global AI Developer Hackathon
-(started 2026-11-02). The test video is my own footage. The app's visual style is using only real SOP data.
+(started 2026-11-02). The test video is my own footage. The app displays only real SOP output; nothing is mocked.
