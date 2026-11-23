@@ -6,8 +6,6 @@ A person should review the draft before anyone relies on it.
 
 Built for the Meta Global AI Developer Hackathon with Muse Voice Transcribe, Muse Spark and SAM 3.1.
 
-<img width="728" height="800" alt="image" src="https://github.com/user-attachments/assets/5c545e27-38db-4170-b7c2-2c82a1fbfa5b" />
-
 ![Step from a generated SOP, with boxes drawn by SAM 3.1](data/output/mouse/images/step_05.jpg)
 
 *A photo from a generated SOP. Stepwise chose the frame, Muse Spark named the objects, and SAM 3.1 located them.*
@@ -38,6 +36,12 @@ happen without a pause, so Stepwise splits that burst at its calmest moment.
 Each real model response is cached in `cache/`, keyed on its inputs, so repeat runs don't pay
 for the same calls again.
 
+## Demo
+
+<img width="728" alt="Stepwise app showing the generated SOP for a wireless mouse battery replacement" src="https://github.com/user-attachments/assets/5c545e27-38db-4170-b7c2-2c82a1fbfa5b" />
+
+*The Stepwise app showing the SOP generated from the test video: each step with its instruction, checks and annotated photo.*
+
 ## Measured results
 
 From one real run on one video: a 56-second recording of a wireless mouse battery replacement,
@@ -62,17 +66,26 @@ See the full output in [`data/output/mouse/`](data/output/mouse/). `sop.html` di
 
 ## Not built yet
 
- The next goal is to report skipped or out-of-order steps, with a photo as evidence.
+The next goal is to report skipped or out-of-order steps, with a photo as evidence.
 
 ## Run it
 
-You need Python 3.12. From the repo root, in PowerShell:
+You need Python 3.12. From the repo root:
 
 ```powershell
+# Windows (PowerShell)
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 streamlit run src\app.py
+```
+
+```bash
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run src/app.py
 ```
 
 The app shows the saved SOP without an API key or any API calls.
@@ -84,7 +97,7 @@ MODEL_API_KEY=your_key_here
 ```
 
 A **Create SOP** tab then appears in the app. You can also use the command line: save a video
-as `data/videos/<name>.mp4`, then run `python src\sop.py <name>`. The test video isn't in the
+as `data/videos/<name>.mp4`, then run `python src/sop.py <name>`. The test video isn't in the
 repo because of its size.
 
 ## Built during the hackathon
